@@ -33,7 +33,6 @@
     }
     #sun  { background-image:url('/static/images/sun.png') }
     #moon { background-image:url('/static/images/moon.png') }
-
     body.day   #clouds               { opacity:0.7 }
     body.night #stars                { opacity:1 }
     body.day   #sun, body.night #moon { display:block }
@@ -111,9 +110,7 @@
     <!-- HIJRI panel -->
     <div id="Hijri" class="panel">
       <h2 id="Hijri-heading">التقويم الهجري</h2>
-      <!-- settings button -->
       <button class="lang-button" id="lang-toggle">=</button>
-      <!-- dropdown menu -->
       <div class="lang-menu" id="lang-menu">
         <div data-lang="ar">العربية</div>
         <div data-lang="en">English</div>
@@ -133,29 +130,27 @@
     const toggleBtn = document.getElementById('lang-toggle');
     const menuEl    = document.getElementById('lang-menu');
 
-    // arc control points
     const A = { x:-15, top:80 }, B = { x:50, top:10 }, C = { x:115, top:80 };
     const lerp = (a,b,t) => a + (b-a)*t;
 
-    // current locale
+    // start in Arabic
     let hijriLocale = 'ar-SA-u-ca-islamic';
 
-    // toggle dropdown
-    toggleBtn.addEventListener('click', e => {
+    // dropdown toggle
+    toggleBtn.addEventListener('click', () => {
       menuEl.style.display = menuEl.style.display === 'block' ? 'none' : 'block';
     });
-    // select a language
     menuEl.querySelectorAll('div').forEach(item => {
-      item.addEventListener('click', e => {
+      item.addEventListener('click', () => {
         const lang = item.dataset.lang;
-        hijriLocale = lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-GB-u-ca-islamic';
+        hijriLocale = lang === 'ar'
+          ? 'ar-SA-u-ca-islamic'
+          : 'en-GB-u-ca-islamic';
         headingEl.textContent = lang === 'ar' ? 'التقويم الهجري' : 'Hijri Calendar';
         menuEl.style.display = 'none';
-        // force update
         tick();
       });
     });
-    // hide menu when clicking outside
     document.addEventListener('click', e => {
       if (!toggleBtn.contains(e.target) && !menuEl.contains(e.target)) {
         menuEl.style.display = 'none';
@@ -163,7 +158,7 @@
     });
 
     function updatePanels(now) {
-      // Jakarta panel
+      // --- Jakarta panel ---
       const dateOpts = { year:'numeric', month:'2-digit', day:'2-digit', timeZone:ZONE };
       const timeOpts = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:ZONE };
       const wkOpts   = { weekday:'long', timeZone:ZONE };
@@ -175,19 +170,26 @@
       document.getElementById('Jakarta-weekday').textContent =
         new Intl.DateTimeFormat('en-GB', wkOpts).format(now);
 
-      // Hijri rollover at 18:00
+      // --- Hijri panel ---
+      // get hour/min/sec in Jakarta
       const parts = new Intl.DateTimeFormat('en-GB', {
-        hour:'2-digit', minute:'2-digit', hour12:false, timeZone:ZONE
+        hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:ZONE
       }).formatToParts(now);
-      const hour = +parts.find(p=>p.type==='hour').value;
+      const h = +parts.find(p=>p.type==='hour').value;
+      const m = +parts.find(p=>p.type==='minute').value;
+      const s = +parts.find(p=>p.type==='second').value;
+
+      // compute Hijri clock: reset at 18:00
+      const hijriH = ((h - 18 + 24) % 24);
+      const hh = String(hijriH).padStart(2,'0');
+      const mm = String(m).padStart(2,'0');
+      const ss = String(s).padStart(2,'0');
+      document.getElementById('Hijri-time').textContent = `${hh}:${mm}:${ss}`;
+
+      // for date & weekday we still roll over at 18:00 local
       let base = now;
-      if (hour >= 18) base = new Date(now.getTime() + 86400e3);
+      if (h >= 18) base = new Date(now.getTime() + 86400e3);
 
-      // Hijri time
-      document.getElementById('Hijri-time').textContent =
-        new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
-
-      // Hijri weekday & date
       document.getElementById('Hijri-weekday').textContent =
         new Intl.DateTimeFormat(hijriLocale, { weekday:'long', timeZone:ZONE }).format(base);
       document.getElementById('Hijri-date').textContent =
