@@ -2,187 +2,224 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Jakarta ⇆ Mecca Clock</title>
+  <title>Jakarta Time & Hijri Calendar</title>
   <style>
-    /* ─── GLOBAL RESET & LAYOUT ─── */
-    * { box-sizing: border-box; margin:0; padding:0; }
-    html, body { height:100%; }
+    /* ─── RESET & LAYOUT ─── */
+    * { box-sizing: border-box; margin:0; padding:0 }
+    html, body { height:100% }
     body {
-      position: relative;       /* anchor for absolute layers */
-      overflow: hidden;         /* hide elements moving off-screen */
+      position: relative;
+      overflow: hidden;
       font-family: sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.5s ease;  /* smooth bg fade */
+      transition: background 0.5s ease;
       background-size: cover;
       background-position: center;
+      background-image: url('/static/images/day.jpg');
     }
 
-    /* ─── MOVING SKY LAYERS ─── */
-    .layer {
-      position: absolute;
-      inset: 0;                 /* shorthand for top/right/bottom/left = 0 */
-      background-repeat: repeat;
-      opacity: 0;               /* shown when its mode is active */
-      pointer-events: none;     /* clicks pass through */
-    }
-    /* night stars drift very slowly */
-    #stars {
-      background-image: url('/static/images/stars.png');
-      animation: star-drift 200s linear infinite;
-    }
-    /* day clouds drift faster */
-    #clouds {
-      background-image: url('/static/images/clouds.png');
-      animation: cloud-drift 60s linear infinite;
-      z-index: 3;
-    }
+    /* ─── SKY LAYERS ─── */
+    .layer { position:absolute; inset:0; background-repeat:repeat; opacity:0; pointer-events:none }
+    #stars  { background-image:url('/static/images/stars.png');  animation:star-drift 200s linear infinite; z-index:1 }
+    #clouds { background-image:url('/static/images/clouds.png'); animation:cloud-drift 60s linear infinite; z-index:3 }
 
     /* ─── SUN & MOON ─── */
     .celestial {
-      position: absolute;
-      width: 120px; height: 120px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      z-index: 2;               /* in front of layers, behind panels */
-      pointer-events: none;
-      display: none;            /* toggled on by JS */
+      position:absolute; width:120px; height:120px;
+      background-size:contain; background-repeat:no-repeat;
+      display:none; pointer-events:none; z-index:2;
     }
-    #sun  { background-image: url('/static/images/sun.png'); }
-    #moon { background-image: url('/static/images/moon.png'); }
+    #sun  { background-image:url('/static/images/sun.png') }
+    #moon { background-image:url('/static/images/moon.png') }
 
-    /* show correct sky elements in day/night mode */
-    body.day  #clouds   { opacity: 0.7; }
-    body.night #stars    { opacity: 1; }
-    body.day  #sun,  body.night #moon { display: block; }
+    body.day   #clouds               { opacity:0.7 }
+    body.night #stars                { opacity:1 }
+    body.day   #sun, body.night #moon { display:block }
 
-    /* ─── PANELS (CLOCKS + CLICK SWITCH) ─── */
+    /* ─── PANELS ─── */
     .panel-container {
-      position: relative;       /* above sky layers */
-      z-index: 3;
-      display: flex;
-      width: 80%;
-      max-width: 900px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      border-radius: 8px;
-      overflow: hidden;
+      position: relative; z-index:4;
+      display:flex; width:80%; max-width:900px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      border-radius:8px; overflow:hidden;
     }
     .panel {
-      flex: 1;
-      padding: 2rem;
-      color: white;
-      text-align: center;
-      cursor: pointer;
-      background: rgba(0,0,0,0.2);
-      transition: background 0.3s ease;
-      user-select: none;
+      flex:1; padding:2rem; position:relative;
+      text-align:center; color:white;
+      background:rgba(0,0,0,0.2);
     }
-    .panel.selected { background: rgba(0,0,0,0.6); }
-    .panel h2    { margin-bottom: 1rem; font-size: 1.5rem; }
-    .panel .time { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    .panel .date { font-size: 1.2rem; }
+    .panel h2       { margin-bottom:0.5rem; font-size:1.5rem }
+    .panel .time    { font-size:2.5rem; margin-bottom:0.3rem }
+    .panel .weekday { font-size:1.4rem; margin-bottom:0.3rem }
+    .panel .date    { font-size:1.2rem }
 
-    /* ─── KEYFRAMES FOR LAYERS ─── */
-    @keyframes star-drift {
-      0%   { background-position:   0    0; }
-      100% { background-position: -1000px 0; }
+    /* ─── LANGUAGE DROPDOWN ─── */
+    .lang-button {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
     }
-    @keyframes cloud-drift {
-      0%   { background-position:   0    0; }
-      100% { background-position: -800px 0; }
+    .lang-menu {
+      display: none;
+      position: absolute;
+      top: 2.5rem; right: 1rem;
+      background: rgba(0,0,0,0.8);
+      border-radius: 4px;
+      overflow: hidden;
+      z-index: 5;
     }
+    .lang-menu div {
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      color: white;
+      white-space: nowrap;
+    }
+    .lang-menu div:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* ─── KEYFRAMES ─── */
+    @keyframes star-drift  { 0%{background-position:0 0}   100%{background-position:-1000px 0} }
+    @keyframes cloud-drift { 0%{background-position:0 0}   100%{background-position:-800px 0} }
   </style>
 </head>
 <body>
-  <!-- Night and Day drifting layers -->
-  <div id="stars" class="layer"></div>
+  <!-- sky -->
+  <div id="stars"  class="layer"></div>
   <div id="clouds" class="layer"></div>
 
-  <!-- Sun & Moon elements, positioned by JS -->
-  <div id="sun" class="celestial"></div>
-  <div id="moon" class="celestial"></div>
+  <!-- sun & moon -->
+  <div id="sun"   class="celestial"></div>
+  <div id="moon"  class="celestial"></div>
 
-  <!-- Two clickable clock panels -->
+  <!-- panels -->
   <div class="panel-container">
+    <!-- JAKARTA panel -->
     <div id="Jakarta" class="panel">
       <h2>Jakarta</h2>
-      <div class="time" id="Jakarta-time">--:--:--</div>
-      <div class="date" id="Jakarta-date">----/--/--</div>
+      <div class="time"    id="Jakarta-time">--:--:--</div>
+      <div class="weekday" id="Jakarta-weekday">-------</div>
+      <div class="date"    id="Jakarta-date">----/--/--</div>
     </div>
-    <div id="Mecca" class="panel selected">
-      <h2>Mecca</h2>
-      <div class="time" id="Mecca-time">--:--:--</div>
-      <div class="date" id="Mecca-date">----/--/--</div>
+
+    <!-- HIJRI panel -->
+    <div id="Hijri" class="panel">
+      <h2 id="Hijri-heading">التقويم الهجري</h2>
+      <!-- settings button -->
+      <button class="lang-button" id="lang-toggle">=</button>
+      <!-- dropdown menu -->
+      <div class="lang-menu" id="lang-menu">
+        <div data-lang="ar">العربية</div>
+        <div data-lang="en">English</div>
+      </div>
+
+      <div class="time"    id="Hijri-time">--:--:--</div>
+      <div class="weekday" id="Hijri-weekday">-------</div>
+      <div class="date"    id="Hijri-date">-------</div>
     </div>
   </div>
 
   <script>
-    // ─── CONFIG & HELPERS ───
-    const panels    = { Jakarta: 'Asia/Jakarta', Mecca: 'Asia/Riyadh' };
-    let activeZone  = 'Mecca';                   // default controlling background
+    const ZONE      = 'Asia/Jakarta';
     const sunEl     = document.getElementById('sun');
     const moonEl    = document.getElementById('moon');
+    const headingEl = document.getElementById('Hijri-heading');
+    const toggleBtn = document.getElementById('lang-toggle');
+    const menuEl    = document.getElementById('lang-menu');
 
-    // Linear interpolation helper: lerp(a,b,t) = a + (b-a)*t
-    function lerp(a, b, t) { return a + (b - a) * t; }
+    // arc control points
+    const A = { x:-15, top:80 }, B = { x:50, top:10 }, C = { x:115, top:80 };
+    const lerp = (a,b,t) => a + (b-a)*t;
 
-    // Three key points on our sun/moon arc
-    const A = { x: -15, top: 80 }; // sunrise/sunset start
-    const B = { x:  50, top: 10 }; // highest point (noon/midnight)
-    const C = { x: 115, top: 80 }; // sunrise/sunset end
+    // current locale
+    let hijriLocale = 'ar-SA-u-ca-islamic';
 
-    // ─── UPDATE BOTH CLOCKS ───
-    function updateClocks() {
-      const now = new Date();
-      for (const id in panels) {
-        const zone = panels[id];
-        // date in DD/MM/YYYY
-        document.getElementById(id + '-date').textContent =
-          new Intl.DateTimeFormat('en-GB', {
-            year: 'numeric', month: '2-digit', day: '2-digit',
-            timeZone: zone
-          }).format(now);
-        // time in 24h HH:MM:SS
-        document.getElementById(id + '-time').textContent =
-          new Intl.DateTimeFormat('en-GB', {
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false, timeZone: zone
-          }).format(now);
+    // toggle dropdown
+    toggleBtn.addEventListener('click', e => {
+      menuEl.style.display = menuEl.style.display === 'block' ? 'none' : 'block';
+    });
+    // select a language
+    menuEl.querySelectorAll('div').forEach(item => {
+      item.addEventListener('click', e => {
+        const lang = item.dataset.lang;
+        hijriLocale = lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-GB-u-ca-islamic';
+        headingEl.textContent = lang === 'ar' ? 'التقويم الهجري' : 'Hijri Calendar';
+        menuEl.style.display = 'none';
+        // force update
+        tick();
+      });
+    });
+    // hide menu when clicking outside
+    document.addEventListener('click', e => {
+      if (!toggleBtn.contains(e.target) && !menuEl.contains(e.target)) {
+        menuEl.style.display = 'none';
       }
+    });
+
+    function updatePanels(now) {
+      // Jakarta panel
+      const dateOpts = { year:'numeric', month:'2-digit', day:'2-digit', timeZone:ZONE };
+      const timeOpts = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:ZONE };
+      const wkOpts   = { weekday:'long', timeZone:ZONE };
+
+      document.getElementById('Jakarta-date').textContent =
+        new Intl.DateTimeFormat('en-GB', dateOpts).format(now);
+      document.getElementById('Jakarta-time').textContent =
+        new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
+      document.getElementById('Jakarta-weekday').textContent =
+        new Intl.DateTimeFormat('en-GB', wkOpts).format(now);
+
+      // Hijri rollover at 18:00
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        hour:'2-digit', minute:'2-digit', hour12:false, timeZone:ZONE
+      }).formatToParts(now);
+      const hour = +parts.find(p=>p.type==='hour').value;
+      let base = now;
+      if (hour >= 18) base = new Date(now.getTime() + 86400e3);
+
+      // Hijri time
+      document.getElementById('Hijri-time').textContent =
+        new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
+
+      // Hijri weekday & date
+      document.getElementById('Hijri-weekday').textContent =
+        new Intl.DateTimeFormat(hijriLocale, { weekday:'long', timeZone:ZONE }).format(base);
+      document.getElementById('Hijri-date').textContent =
+        new Intl.DateTimeFormat(hijriLocale, {
+          year:'numeric', month:'long', day:'numeric', timeZone:ZONE
+        }).format(base);
     }
 
-    // ─── POSITION SUN OR MOON BASED ON REAL TIME ───
-    function positionCelestial(now, zone) {
-      // extract hour/minute in that timezone
+    function updateSky(now) {
       const parts = new Intl.DateTimeFormat('en-GB', {
-        hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zone
+        hour:'2-digit', minute:'2-digit', hour12:false, timeZone:ZONE
       }).formatToParts(now);
-      const hour   = +parts.find(p => p.type === 'hour').value;
-      const minute = +parts.find(p => p.type === 'minute').value;
+      const h = +parts.find(p=>p.type==='hour').value;
+      const m = +parts.find(p=>p.type==='minute').value;
 
-      // determine day (06–17) vs night (18–05)
-      const isDay = hour >= 6 && hour < 18;
+      const isDay = h >= 6 && h < 18;
       document.body.classList.toggle('day',   isDay);
       document.body.classList.toggle('night', !isDay);
+      document.body.style.backgroundImage = isDay
+        ? "url('/static/images/day.jpg')"
+        : "url('/static/images/night.jpg')";
 
-      // compute a normalized progress p ∈ [0,1]
-      let p;
-      if (isDay) {
-        p = ((hour + minute/60) - 6) / 12;
-      } else {
-        const h = hour < 6 ? hour + 24 : hour;  // map 0–5 → 24–29
-        p = ((h + minute/60) - 18) / 12;
-      }
-      p = Math.min(Math.max(p, 0), 1);
+      let p = isDay
+        ? ((h + m/60) - 6) / 12
+        : (((h < 6 ? h+24 : h) + m/60) - 18) / 12;
+      p = Math.max(0, Math.min(1, p));
 
-      // choose element to show
       const el    = isDay ? sunEl  : moonEl;
       const other = isDay ? moonEl : sunEl;
       other.style.display = 'none';
       el.style.display    = 'block';
 
-      // interpolate along arc: first half A→B, second half B→C
       let x, top;
       if (p <= 0.5) {
         const t = p / 0.5;
@@ -195,34 +232,13 @@
       }
       el.style.left = x + '%';
       el.style.top  = top + '%';
-
-      // also update the static background image behind panels
-      document.body.style.backgroundImage = isDay
-        ? "url('/static/images/day.jpg')"
-        : "url('/static/images/night.jpg')";
     }
 
-
-
-    // ─── MAIN TICK FUNCTION ───
     function tick() {
-      updateClocks();
-      positionCelestial(new Date(), panels[activeZone]);
+      const now = new Date();
+      updatePanels(now);
+      updateSky(now);
     }
-
-    // ─── SWITCH ACTIVE ZONE ON PANEL CLICK ───
-    Object.keys(panels).forEach(id => {
-      document.getElementById(id).addEventListener('click', () => {
-        // highlight selected panel
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('selected'));
-        document.getElementById(id).classList.add('selected');
-        // change which city's time drives the sky
-        activeZone = id;
-        tick();  // immediate refresh
-      });
-    });
-
-    // ─── START THE LOOP ───
     tick();
     setInterval(tick, 1000);
   </script>
