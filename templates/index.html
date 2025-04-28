@@ -45,8 +45,8 @@
     body.day    #noon   { opacity:0 }
     body.night  #noon   { opacity:0 }
 
-    body.noon   #dusk   { /* controlled in JS */ }
-    body.day    #dusk   { /* controlled in JS */ }
+    body.noon   #dusk   { /* JS‐controlled */ }
+    body.day    #dusk   { /* JS‐controlled */ }
     body.night  #dusk   { opacity:0 }
 
     body.noon   #stars  { opacity:0.3 }
@@ -73,14 +73,11 @@
     .panel {
       flex:1; padding:2rem; position:relative;
       text-align:center; color:white; background:rgba(0,0,0,0.2);
-      cursor:default;
     }
     .panel h2       { margin-bottom:0.5rem; font-size:1.5rem }
     .panel .time    { font-size:2.5rem; margin-bottom:0.3rem }
     .panel .weekday { font-size:1.4rem; margin-bottom:0.3rem }
     .panel .date    { font-size:1.2rem }
-
-    /* short gregorian date styling */
     .panel .gdate   { font-size:1.2rem; opacity:0.8; }
 
     /* ─── LANGUAGE DROPDOWN ─── */
@@ -91,12 +88,10 @@
     }
     .lang-menu {
       display:none; position:absolute; top:2.5rem; right:1rem;
-      background:rgba(0,0,0,0.8); border-radius:4px;
-      overflow:hidden; z-index:7;
+      background:rgba(0,0,0,0.8); border-radius:4px; overflow:hidden; z-index:7;
     }
     .lang-menu div {
-      padding:0.4rem 1rem; cursor:pointer; color:white;
-      white-space:nowrap;
+      padding:0.4rem 1rem; cursor:pointer; color:white; white-space:nowrap;
     }
     .lang-menu div:hover { background:rgba(255,255,255,0.2) }
 
@@ -118,7 +113,7 @@
 
   <!-- PANELS -->
   <div class="panel-container">
-    <!-- JAKARTA -->
+    <!-- JAKARTA PANEL -->
     <div id="Jakarta" class="panel">
       <h2></h2>
       <div class="time"    id="Jakarta-time">--:--:--</div>
@@ -126,7 +121,7 @@
       <div class="date"    id="Jakarta-date">----/--/--</div>
     </div>
 
-    <!-- HIJRI + GREGORIAN SHORT DATE -->
+    <!-- HIJRI + GREGORIAN SHORT DATE (shifted back 1 day) -->
     <div id="Hijri" class="panel">
       <h2 id="Hijri-heading"></h2>
       <button class="lang-button" id="lang-toggle">=</button>
@@ -164,13 +159,13 @@
       e.stopPropagation();
       menuEl.style.display = menuEl.style.display==='block'?'none':'block';
     });
-    menuEl.querySelectorAll('div').forEach(item=>{
+    menuEl.querySelectorAll('div').forEach(item => {
       item.addEventListener('click', ()=>{
         const lang = item.dataset.lang;
         hijriLocale = lang==='ar'
           ? `ar-SA-u-ca-${hijriCalendar}`
           : `en-GB-u-ca-${hijriCalendar}`;
-        headingEl.textContent = lang==='ar'?'التقويم الهجري':'';
+        headingEl.textContent = lang==='ar'?'':'';
         menuEl.style.display='none';
         tick();
       });
@@ -178,66 +173,57 @@
     document.addEventListener('click', ()=> menuEl.style.display='none');
 
     function updatePanels(now) {
-      // ─── Jakarta ───
+      // Jakarta
       const dateOpts = { year:'numeric', month:'2-digit', day:'2-digit', timeZone:ZONE };
       const timeOpts = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:ZONE };
       const wkOpts   = { weekday:'long', timeZone:ZONE };
+      document.getElementById('Jakarta-date').textContent    = new Intl.DateTimeFormat('en-GB', dateOpts).format(now);
+      document.getElementById('Jakarta-time').textContent    = new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
+      document.getElementById('Jakarta-weekday').textContent = new Intl.DateTimeFormat('en-GB', wkOpts).format(now);
 
-      document.getElementById('Jakarta-date').textContent =
-        new Intl.DateTimeFormat('en-GB', dateOpts).format(now);
-      document.getElementById('Jakarta-time').textContent =
-        new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
-      document.getElementById('Jakarta-weekday').textContent =
-        new Intl.DateTimeFormat('en-GB', wkOpts).format(now);
-
-      // ─── Hijri ───
-      // get H/M/S
-      const parts = new Intl.DateTimeFormat('en-GB', {
-        hour:'2-digit', minute:'2-digit', second:'2-digit',
-        hour12:false, timeZone:ZONE
+      // Hijri parts
+      const parts = new Intl.DateTimeFormat('en-GB',{
+        hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:ZONE
       }).formatToParts(now);
       const h = +parts.find(p=>p.type==='hour').value;
       const m = +parts.find(p=>p.type==='minute').value;
       const s = +parts.find(p=>p.type==='second').value;
 
-      // Hijri clock resets at 18:00
+      // Hijri clock reset
       const hijriH = ((h - 18 + 24) % 24);
       document.getElementById('Hijri-time').textContent =
         `${String(hijriH).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 
-      // rollover & subtract one day
+      // rollover & subtract one Hijri day
       let base = now;
       if (h >= 18) base = new Date(now.getTime() + 86400e3);
       const hijriBase = new Date(base.getTime() - 86400e3);
-
       document.getElementById('Hijri-weekday').textContent =
-        new Intl.DateTimeFormat(hijriLocale, { weekday:'long', timeZone:ZONE }).format(hijriBase);
+        new Intl.DateTimeFormat(hijriLocale,{ weekday:'long', timeZone:ZONE }).format(hijriBase);
       document.getElementById('Hijri-date').textContent =
-        new Intl.DateTimeFormat(hijriLocale, {
+        new Intl.DateTimeFormat(hijriLocale,{
           year:'numeric', month:'long', day:'numeric', timeZone:ZONE
         }).format(hijriBase);
 
-      // **New**: Gregorian short date on the Hijri panel
+      // ── NEW: Gregorian short date, shifted back 1 day ──
+      const yesterday = new Date(now.getTime() - 86400e3);
       document.getElementById('Hijri-gregorian').textContent =
-        new Intl.DateTimeFormat('en-GB', dateOpts).format(now);
+        new Intl.DateTimeFormat('en-GB', dateOpts).format(yesterday);
     }
 
     function updateSky(now) {
-      // extract hour + minute
-      const parts = new Intl.DateTimeFormat('en-GB', {
+      const parts = new Intl.DateTimeFormat('en-GB',{
         hour:'2-digit', minute:'2-digit', hour12:false, timeZone:ZONE
       }).formatToParts(now);
       const h = +parts.find(p=>p.type==='hour').value;
       const m = +parts.find(p=>p.type==='minute').value;
 
-      // determine day/noon/dusk/night
-      const isNoon = (h >= 11 && h < 13);
-      const isDay  = (h >= 6  && h < 18);
+      const isNoon = (h>=11 && h<13);
+      const isDay  = (h>=6  && h<18);
       document.body.classList.toggle('noon',  isNoon);
-      document.body.classList.toggle('day',   !isNoon && isDay);
-      document.body.classList.toggle('night', !isNoon && !isDay);
+      document.body.classList.toggle('day',   !isNoon&&isDay);
+      document.body.classList.toggle('night', !isNoon&&!isDay);
 
-      // background-image swap
       if (isNoon) {
         document.body.style.backgroundImage = 'none';
       } else {
@@ -246,39 +232,36 @@
           : "url('/static/images/night.jpg')";
       }
 
-      // DUSK fade from 17:00→18:00
       let duskOpacity = 0;
-      if (h >= 17 && h < 18) {
-        duskOpacity = (h + m/60 - 17) / 1;  // 0→1 over that hour
+      if (h>=17 && h<18) {
+        duskOpacity = (h + m/60 - 17);
       }
       duskEl.style.opacity = duskOpacity;
 
-      // sun/moon arc
       let p = (isNoon||isDay)
         ? ((h + m/60) - 6) / 12
         : (((h<6?h+24:h) + m/60) - 18) / 12;
       p = Math.max(0, Math.min(1, p));
 
-      const el    = (isNoon||isDay) ? sunEl  : moonEl;
-      const other = (isNoon||isDay) ? moonEl : sunEl;
+      const el    = (isNoon||isDay)?sunEl:moonEl;
+      const other = (isNoon||isDay)?moonEl:sunEl;
       other.style.display = 'none';
       el.style.display    = 'block';
 
       let x, top;
-      if (p <= 0.5) {
-        const t = p / 0.5;
-        x   = lerp(A.x,   B.x,   t);
+      if (p<=0.5) {
+        const t = p/0.5;
+        x   = lerp(A.x, B.x, t);
         top = lerp(A.top, B.top, t);
       } else {
-        const t = (p - 0.5) / 0.5;
-        x   = lerp(B.x,   C.x,   t);
+        const t = (p-0.5)/0.5;
+        x   = lerp(B.x, C.x, t);
         top = lerp(B.top, C.top, t);
       }
       el.style.left = x + '%';
       el.style.top  = top + '%';
     }
 
-    // MAIN LOOP
     function tick() {
       const now = new Date();
       updatePanels(now);
