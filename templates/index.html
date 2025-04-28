@@ -136,8 +136,8 @@
       </div>
       <div class="time"    id="Hijri-time">--:--:--</div>
       <div class="weekday" id="Hijri-weekday">-------</div>
-      <div class="date"    id="Hijri-date">-------</div>
       <div class="gdate"   id="Hijri-gregorian">--/--/----</div>
+      <div class="date"    id="Hijri-date">-------</div>
     </div>
   </div>
 
@@ -170,7 +170,7 @@
         hijriLocale = lang==='ar'
           ? `ar-SA-u-ca-${hijriCalendar}`
           : `en-GB-u-ca-${hijriCalendar}`;
-        headingEl.textContent = lang==='ar'?'التقويم الهجري':'Hijri Calendar';
+        headingEl.textContent = lang==='ar'?'التقويم الهجري':'';
         menuEl.style.display='none';
         tick();
       });
