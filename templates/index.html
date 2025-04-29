@@ -50,9 +50,9 @@
     body.day    #stars  { opacity:0 }
     body.night  #stars  { opacity:1 }
 
-    body.noon   #clouds { opacity:0 }
+    body.noon   #clouds { opacity:0.7 }
     body.day    #clouds { opacity:0.7 }
-    body.night  #clouds { opacity:0 }
+    body.night  #clouds { opacity:0.7 }
 
     /* Celestial show/hide */
     body.day    #sun,    body.noon #sun   { display:block }
@@ -97,7 +97,7 @@
   <div class="panel-container">
     <!-- Jakarta -->
     <div id="Jakarta" class="panel">
-      <h2>Jakarta</h2>
+      <h2></h2>
       <div class="time"    id="Jakarta-time">--:--:--</div>
       <div class="weekday" id="Jakarta-weekday">-------</div>
       <div class="date"    id="Jakarta-date">----/--/--</div>
@@ -105,11 +105,11 @@
 
     <!-- Hijri -->
     <div id="Hijri" class="panel">
-      <h2>Hijri Calendar</h2>
+      <h2></h2>
       <div class="time"    id="Hijri-time">--:--:--</div>
       <div class="weekday" id="Hijri-weekday">-------</div>
-      <div class="date"    id="Hijri-date">-------</div>
       <div class="gdate"   id="Hijri-gregorian">--/--/----</div>
+      <div class="date"    id="Hijri-date">-------</div>
     </div>
   </div>
 
@@ -173,7 +173,7 @@
       const h = +parts.find(p=>p.type==='hour').value;
       const m = +parts.find(p=>p.type==='minute').value;
 
-      const isNoon = (h >=11 && h <13);
+      const isNoon = (h >=17 && h <18);
       const isDay  = (h >=6  && h <18);
       document.body.classList.toggle('noon',  isNoon);
       document.body.classList.toggle('day',   !isNoon && isDay);
