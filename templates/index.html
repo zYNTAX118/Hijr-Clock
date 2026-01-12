@@ -75,7 +75,7 @@
     .clock-wrapper {
       position:relative;
       z-index:6;
-      width:min(80vmin, 520px);
+      width:min(86vmin, 520px);
       aspect-ratio:1;
       display:flex;
       align-items:center;
@@ -88,6 +88,49 @@
       border-radius:50%;
       background:radial-gradient(circle at 50% 40%, #2c2f33 0%, #1c1f23 55%, #17181b 100%);
       box-shadow:0 20px 40px rgba(0,0,0,0.45);
+      transition:filter 2s ease, box-shadow 2s ease;
+      overflow:hidden;
+    }
+    .clock-face::before {
+      content:"";
+      position:absolute;
+      inset:-12%;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,216,120,0.65) 0%, rgba(255,190,60,0.35) 45%, rgba(255,170,0,0) 70%);
+      opacity:0;
+      transition:opacity 2s ease, transform 2s ease;
+      z-index:0;
+    }
+    .clock-face::after {
+      content:"";
+      position:absolute;
+      inset:8%;
+      border-radius:50%;
+      background:radial-gradient(circle at 40% 35%, rgba(220,235,255,0.8) 0%, rgba(120,150,190,0.15) 45%, rgba(40,50,70,0) 70%);
+      opacity:0;
+      transition:opacity 2s ease;
+      z-index:0;
+    }
+    body.day .clock-face,
+    body.noon .clock-face {
+      filter:brightness(1.05);
+      box-shadow:0 24px 45px rgba(0,0,0,0.35);
+    }
+    body.day .clock-face::before,
+    body.noon .clock-face::before {
+      opacity:1;
+      transform:scale(1);
+    }
+    body.night .clock-face {
+      filter:brightness(0.85);
+      box-shadow:0 18px 35px rgba(0,0,0,0.5);
+    }
+    body.night .clock-face::before {
+      opacity:0.2;
+      transform:scale(0.95);
+    }
+    body.night .clock-face::after {
+      opacity:0.9;
     }
     .outer-glow {
       position:absolute;
@@ -95,6 +138,10 @@
       border-radius:50%;
       box-shadow:0 0 30px rgba(255,196,0,0.6);
       border:6px solid rgba(255,196,0,0.6);
+      transition:opacity 2s ease;
+    }
+    body.night .outer-glow {
+      opacity:0.35;
     }
     .outer-ring {
       position:absolute;
@@ -102,6 +149,10 @@
       border-radius:50%;
       border:6px solid #d9b20d;
       box-shadow:inset 0 0 8px rgba(255,255,255,0.15);
+      transition:border-color 2s ease;
+    }
+    body.night .outer-ring {
+      border-color:rgba(140,160,180,0.75);
     }
     .inner-ring {
       position:absolute;
@@ -109,10 +160,15 @@
       border-radius:50%;
       border:7px solid rgba(110,196,255,0.9);
       box-shadow:0 0 0 8px rgba(0,0,0,0.4) inset;
+      transition:border-color 2s ease;
+    }
+    body.night .inner-ring {
+      border-color:rgba(110,170,220,0.8);
     }
     .clock-ticks {
       position:absolute;
       inset:0;
+      z-index:1;
     }
     .clock-ticks .tick {
       position:absolute;
@@ -147,6 +203,7 @@
       color:#f5f5f5;
       font-weight:600;
       text-shadow:0 2px 4px rgba(0,0,0,0.5);
+      z-index:1;
     }
     .clock-numbers .number {
       position:absolute;
@@ -161,6 +218,7 @@
       left:50%;
       transform-origin:50% 100%;
       border-radius:50px;
+      z-index:2;
     }
     .hand.gregorian {
       background:#f0c000;
