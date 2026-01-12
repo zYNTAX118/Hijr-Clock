@@ -71,98 +71,182 @@
     body.night  #sun                    { display:none }
     body.night  #moon                   { display:block }
 
-    /* PANELS */
-    .panel-container {
-      position:absolute; bottom:clamp(1.5rem, 5vh, 3.5rem); left:50%; transform:translateX(-50%);
+    /* CLOCK */
+    .clock-wrapper {
+      position:relative;
       z-index:6;
-      display:flex; width:min(90vw, 900px);
-      box-shadow:0 4px 12px rgba(0,0,0,0.3);
-      border-radius:20px; overflow:hidden;
-      backdrop-filter:blur(8px);
-      background:rgba(0,0,0,0.25);
-      margin:0;
-      padding-bottom:env(safe-area-inset-bottom, 0);
+      width:min(80vmin, 520px);
+      aspect-ratio:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .panel {
-      flex:1; padding:2rem; position:relative;
-      text-align:center; color:white; background:transparent;
+    .clock-face {
+      position:relative;
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      background:radial-gradient(circle at 50% 40%, #2c2f33 0%, #1c1f23 55%, #17181b 100%);
+      box-shadow:0 20px 40px rgba(0,0,0,0.45);
     }
-    .panel h2       { margin-bottom:0.5rem; font-size:1.5rem }
-    .panel .time    { font-size:2.5rem; margin-bottom:0.3rem }
-    .panel .weekday { font-size:1.4rem; margin-bottom:0.3rem }
-    .panel .date    { font-size:1.2rem }
-    .panel .gdate   { font-size:1.2rem; opacity:0.8 }
+    .outer-glow {
+      position:absolute;
+      inset:-3%;
+      border-radius:50%;
+      box-shadow:0 0 30px rgba(255,196,0,0.6);
+      border:6px solid rgba(255,196,0,0.6);
+    }
+    .outer-ring {
+      position:absolute;
+      inset:2%;
+      border-radius:50%;
+      border:6px solid #d9b20d;
+      box-shadow:inset 0 0 8px rgba(255,255,255,0.15);
+    }
+    .inner-ring {
+      position:absolute;
+      inset:25%;
+      border-radius:50%;
+      border:7px solid rgba(110,196,255,0.9);
+      box-shadow:0 0 0 8px rgba(0,0,0,0.4) inset;
+    }
+    .clock-ticks {
+      position:absolute;
+      inset:0;
+    }
+    .clock-ticks .tick {
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:2px;
+      height:10px;
+      background:rgba(255,255,255,0.85);
+      transform:rotate(var(--tick-rotate)) translateY(var(--tick-radius));
+      transform-origin:center center;
+      border-radius:2px;
+    }
+    .clock-ticks .tick.major {
+      height:18px;
+      width:3px;
+      background:#fff;
+    }
+    .clock-ticks.outer .tick { --tick-radius:-46%; }
+    .clock-ticks.inner .tick {
+      --tick-radius:-33%;
+      background:rgba(200,200,200,0.65);
+    }
+    .clock-ticks.inner .tick.major {
+      height:14px;
+      width:2px;
+      background:rgba(200,200,200,0.9);
+    }
+    .clock-numbers {
+      position:absolute;
+      inset:0;
+      font-size:clamp(1.4rem, 4.5vmin, 2.6rem);
+      color:#f5f5f5;
+      font-weight:600;
+      text-shadow:0 2px 4px rgba(0,0,0,0.5);
+    }
+    .clock-numbers .number {
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:rotate(var(--number-rotate)) translateY(-44%) rotate(calc(-1 * var(--number-rotate)));
+      transform-origin:center center;
+    }
+    .hand {
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform-origin:50% 100%;
+      border-radius:50px;
+    }
+    .hand.gregorian {
+      background:#f0c000;
+      box-shadow:0 0 8px rgba(255,204,0,0.6);
+    }
+    .hand.hijri {
+      background:#7fd2ff;
+      box-shadow:0 0 6px rgba(130,210,255,0.5);
+    }
+    .hand.hour {
+      width:10px;
+      height:22%;
+      margin-top:-22%;
+    }
+    .hand.minute {
+      width:8px;
+      height:32%;
+      margin-top:-32%;
+    }
+    .hand.second {
+      width:3px;
+      height:38%;
+      margin-top:-38%;
+      opacity:0.8;
+    }
+    .hand.hijri.hour {
+      width:8px;
+      height:15%;
+      margin-top:-15%;
+    }
+    .hand.hijri.minute {
+      width:6px;
+      height:22%;
+      margin-top:-22%;
+    }
+    .hand.hijri.second {
+      width:2px;
+      height:26%;
+      margin-top:-26%;
+      opacity:0.7;
+    }
+    .center-cap {
+      position:absolute;
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:radial-gradient(circle, #ffe08a 0%, #d9a300 65%, #b58500 100%);
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      box-shadow:0 0 12px rgba(255,210,90,0.7);
+      z-index:5;
+    }
+    .clock-labels {
+      position:absolute;
+      inset:auto 0 14%;
+      text-align:center;
+      color:#f2f2f2;
+      font-size:clamp(0.75rem, 2.2vmin, 1rem);
+      display:flex;
+      flex-direction:column;
+      gap:0.3rem;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+    .clock-labels span {
+      display:block;
+      color:rgba(255,255,255,0.75);
+      font-size:0.75em;
+    }
 
     /* KEYFRAMES */
     @keyframes star-drift  { 0%{background-position:0 0} 100%{background-position:-1000px 0} }
     @keyframes cloud-drift { 0%{background-position:0 0} 100%{background-position:-800px 0} }
 
     /* RESPONSIVE */
-    @media (max-width: 900px) and (orientation: landscape) {
-      .panel-container {
-        bottom:1rem;
-        width:min(700px, calc(100% - 2rem));
-      }
-    }
-
     @media (max-width: 768px) {
       body {
         padding:1rem;
-        justify-content:flex-end;
       }
-      .panel-container {
-        flex-direction:column;
-        width:min(480px, calc(100% - 1.5rem));
-        max-width:none;
-        bottom:clamp(0.75rem, 4vh, 2rem);
-        border-radius:24px;
+      .clock-wrapper {
+        width:min(90vmin, 420px);
       }
-      .panel + .panel {
-        border-top:1px solid rgba(255,255,255,0.2);
+      .clock-labels {
+        inset:auto 0 12%;
       }
-      .panel {
-        padding:1.5rem;
-      }
-      .panel .time    { font-size:2.1rem; }
-      .panel .weekday { font-size:1.2rem; }
-      .panel .date,
-      .panel .gdate   { font-size:1rem; }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding:1rem 0.75rem;
-        align-items:flex-end;
-        min-height:100vh;
-      }
-      .panel-container {
-        border-radius:26px;
-        width:calc(100% - 1rem);
-        left:50%;
-        transform:translateX(-50%);
-        bottom:calc(env(safe-area-inset-bottom, 0) + 0.5rem);
-      }
-      .panel {
-        padding:1.25rem 1rem;
-      }
-      .panel h2    { font-size:1.2rem; }
-      .panel .time { font-size:1.8rem; }
-    }
-
-    @media (max-width: 420px) {
-      body {
-        padding:0.75rem 0.5rem;
-      }
-      .panel-container {
-        width:calc(100% - 0.5rem);
-      }
-      .panel {
-        padding:1rem 0.75rem;
-      }
-      .panel .time { font-size:1.6rem; }
-      .panel .weekday { font-size:1.1rem; }
-      .panel .date,
-      .panel .gdate { font-size:0.95rem; }
     }
   </style>
 </head>
@@ -177,23 +261,31 @@
   <div id="sun"   class="celestial"></div>
   <div id="moon"  class="celestial"></div>
 
-  <!-- PANELS -->
-  <div class="panel-container">
-    <!-- Jakarta -->
-    <div id="Jakarta" class="panel">
-      <h2></h2>
-      <div class="time"    id="Jakarta-time">--:--:--</div>
-      <div class="weekday" id="Jakarta-weekday">-------</div>
-      <div class="date"    id="Jakarta-date">----/--/--</div>
-    </div>
+  <!-- CLOCK -->
+  <div class="clock-wrapper">
+    <div class="clock-face">
+      <div class="outer-glow"></div>
+      <div class="outer-ring"></div>
+      <div id="outer-ticks" class="clock-ticks outer"></div>
+      <div id="clock-numbers" class="clock-numbers"></div>
 
-    <!-- Hijri -->
-    <div id="Hijri" class="panel">
-      <h2></h2>
-      <div class="time"    id="Hijri-time">--:--:--</div>
-      <div class="weekday" id="Hijri-weekday">-------</div>
-      <div class="gdate"   id="Hijri-gregorian">--/--/----</div>
-      <div class="date"    id="Hijri-date">-------</div>
+      <div class="inner-ring"></div>
+      <div id="inner-ticks" class="clock-ticks inner"></div>
+
+      <div id="g-hour" class="hand gregorian hour"></div>
+      <div id="g-minute" class="hand gregorian minute"></div>
+      <div id="g-second" class="hand gregorian second"></div>
+
+      <div id="h-hour" class="hand hijri hour"></div>
+      <div id="h-minute" class="hand hijri minute"></div>
+      <div id="h-second" class="hand hijri second"></div>
+
+      <div class="center-cap"></div>
+      <div class="clock-labels">
+        <div id="gregorian-date">--/--/----</div>
+        <div id="hijri-date">-------</div>
+        <span>Hijri day starts 5:59 PM</span>
+      </div>
     </div>
   </div>
 
@@ -210,44 +302,81 @@
     // Hijri always in English + Umm al-Qura
     const hijriLocale = 'en-GB-u-ca-islamic-umalqura';
 
-    function updatePanels(now) {
-      // Jakarta
+    const ticks = { outer:60, inner:60 };
+
+    function buildTicks() {
+      const outer = document.getElementById('outer-ticks');
+      const inner = document.getElementById('inner-ticks');
+      [outer, inner].forEach((el, index) => {
+        for (let i = 0; i < ticks.outer; i += 1) {
+          const tick = document.createElement('div');
+          tick.className = 'tick' + (i % 5 === 0 ? ' major' : '');
+          tick.style.setProperty('--tick-rotate', `${i * 6}deg`);
+          el.appendChild(tick);
+        }
+      });
+    }
+
+    function buildNumbers() {
+      const numbers = document.getElementById('clock-numbers');
+      for (let i = 1; i <= 12; i += 1) {
+        const number = document.createElement('div');
+        number.className = 'number';
+        number.textContent = i;
+        number.style.setProperty('--number-rotate', `${i * 30}deg`);
+        numbers.appendChild(number);
+      }
+    }
+
+    function updateClock(now) {
+      // Gregorian time
       const dateOpts = { year:'numeric', month:'2-digit', day:'2-digit', timeZone:ZONE };
       const timeOpts = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:ZONE };
-      const wkOpts   = { weekday:'long', timeZone:ZONE };
-      document.getElementById('Jakarta-date').textContent    = new Intl.DateTimeFormat('en-GB', dateOpts).format(now);
-      document.getElementById('Jakarta-time').textContent    = new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
-      document.getElementById('Jakarta-weekday').textContent = new Intl.DateTimeFormat('en-GB', wkOpts).format(now);
+      const parts = new Intl.DateTimeFormat('en-GB', timeOpts).formatToParts(now);
+      const gHour = +parts.find(p=>p.type==='hour').value;
+      const gMinute = +parts.find(p=>p.type==='minute').value;
+      const gSecond = +parts.find(p=>p.type==='second').value;
 
-      // Hijri time parts
-      const parts = new Intl.DateTimeFormat('en-GB',{
-        hour:'2-digit', minute:'2-digit', second:'2-digit',
-        hour12:false, timeZone:ZONE
-      }).formatToParts(now);
-      const h = +parts.find(p=>p.type==='hour').value;
-      const m = +parts.find(p=>p.type==='minute').value;
-      const s = +parts.find(p=>p.type==='second').value;
+      const gHourAngle = ((gHour % 12) + gMinute / 60) * 30;
+      const gMinuteAngle = (gMinute + gSecond / 60) * 6;
+      const gSecondAngle = gSecond * 6;
 
-      // Hijri clock resets at 18:00
-      const hijriH = ((h - 18 + 24) % 24);
-      document.getElementById('Hijri-time').textContent =
-        `${String(hijriH).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      document.getElementById('g-hour').style.transform =
+        `translate(-50%, -100%) rotate(${gHourAngle}deg)`;
+      document.getElementById('g-minute').style.transform =
+        `translate(-50%, -100%) rotate(${gMinuteAngle}deg)`;
+      document.getElementById('g-second').style.transform =
+        `translate(-50%, -100%) rotate(${gSecondAngle}deg)`;
 
-      // Hijri date rollover & subtract one day
-      let base = now;
-      if (h >= 18) base = new Date(now.getTime() + 86400e3);
-      const hijriBase = new Date(base.getTime() - 86400e3);
-      document.getElementById('Hijri-weekday').textContent =
-        new Intl.DateTimeFormat(hijriLocale,{ weekday:'long', timeZone:ZONE }).format(hijriBase);
-      document.getElementById('Hijri-date').textContent =
+      // Hijri time parts with 5:59 PM rollover
+      const hijriOffsetMinutes = 17 * 60 + 59;
+      const totalMinutes = gHour * 60 + gMinute;
+      const hijriTotalMinutes = (totalMinutes - hijriOffsetMinutes + 24 * 60) % (24 * 60);
+      const hijriHour = Math.floor(hijriTotalMinutes / 60);
+      const hijriMinute = hijriTotalMinutes % 60;
+      const hijriSecond = gSecond;
+
+      const hHourAngle = ((hijriHour % 12) + hijriMinute / 60) * 30;
+      const hMinuteAngle = (hijriMinute + hijriSecond / 60) * 6;
+      const hSecondAngle = hijriSecond * 6;
+
+      document.getElementById('h-hour').style.transform =
+        `translate(-50%, -100%) rotate(${hHourAngle}deg)`;
+      document.getElementById('h-minute').style.transform =
+        `translate(-50%, -100%) rotate(${hMinuteAngle}deg)`;
+      document.getElementById('h-second').style.transform =
+        `translate(-50%, -100%) rotate(${hSecondAngle}deg)`;
+
+      const hijriBase = totalMinutes >= hijriOffsetMinutes
+        ? now
+        : new Date(now.getTime() - 86400e3);
+
+      document.getElementById('gregorian-date').textContent =
+        new Intl.DateTimeFormat('en-GB', dateOpts).format(now);
+      document.getElementById('hijri-date').textContent =
         new Intl.DateTimeFormat(hijriLocale,{
           year:'numeric', month:'long', day:'numeric', timeZone:ZONE
         }).format(hijriBase);
-
-      // Gregorian short date, shifted back 1 day
-      const yesterday = new Date(now.getTime() - 86400e3);
-      document.getElementById('Hijri-gregorian').textContent =
-        new Intl.DateTimeFormat('en-GB', dateOpts).format(yesterday);
     }
 
     function updateSky(now) {
@@ -306,9 +435,11 @@
 
     function tick() {
       const now = new Date();
-      updatePanels(now);
+      updateClock(now);
       updateSky(now);
     }
+    buildTicks();
+    buildNumbers();
     tick();
     setInterval(tick, 1000);
   </script>
