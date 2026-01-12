@@ -71,98 +71,123 @@
     body.night  #sun                    { display:none }
     body.night  #moon                   { display:block }
 
-    /* PANELS */
-    .panel-container {
-      position:absolute; bottom:clamp(1.5rem, 5vh, 3.5rem); left:50%; transform:translateX(-50%);
+    /* CLOCK */
+    .clock-wrapper {
+      position:relative;
       z-index:6;
-      display:flex; width:min(90vw, 900px);
-      box-shadow:0 4px 12px rgba(0,0,0,0.3);
-      border-radius:20px; overflow:hidden;
-      backdrop-filter:blur(8px);
-      background:rgba(0,0,0,0.25);
-      margin:0;
-      padding-bottom:env(safe-area-inset-bottom, 0);
+      width:min(86vmin, 520px);
+      aspect-ratio:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:1.5rem;
     }
-    .panel {
-      flex:1; padding:2rem; position:relative;
-      text-align:center; color:white; background:transparent;
+    .clock-face {
+      position:relative;
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      background:#f5f5f5;
+      box-shadow:0 20px 35px rgba(0,0,0,0.35);
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .panel h2       { margin-bottom:0.5rem; font-size:1.5rem }
-    .panel .time    { font-size:2.5rem; margin-bottom:0.3rem }
-    .panel .weekday { font-size:1.4rem; margin-bottom:0.3rem }
-    .panel .date    { font-size:1.2rem }
-    .panel .gdate   { font-size:1.2rem; opacity:0.8 }
+    .clock-ring {
+      position:absolute;
+      inset:6%;
+      border-radius:50%;
+      background:#e2e2e2;
+      box-shadow:inset 0 0 0 12px #fff;
+    }
+    .clock-center {
+      position:absolute;
+      inset:28%;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:0 6px 12px rgba(0,0,0,0.15);
+      z-index:1;
+    }
+    .clock-ticks {
+      position:absolute;
+      inset:0;
+      z-index:2;
+    }
+    .clock-ticks .tick {
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:4px;
+      height:16px;
+      background:#222;
+      transform:rotate(var(--tick-rotate)) translateY(-45%);
+      transform-origin:center center;
+      border-radius:2px;
+    }
+    .hand {
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform-origin:50% 100%;
+      border-radius:50px;
+      z-index:3;
+    }
+    .hand.hour {
+      width:8px;
+      height:20%;
+      background:#111;
+    }
+    .hand.minute {
+      width:6px;
+      height:30%;
+      background:#111;
+    }
+    .hand.second {
+      width:2px;
+      height:34%;
+      background:#e33636;
+    }
+    .center-cap {
+      position:absolute;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:#111;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      z-index:4;
+    }
+    .clock-labels {
+      text-align:center;
+      color:#1c1c1c;
+      font-size:clamp(0.9rem, 2.4vmin, 1.2rem);
+      display:flex;
+      flex-direction:column;
+      gap:0.4rem;
+      font-family:serif;
+    }
+    .clock-labels span {
+      display:block;
+      color:#1c1c1c;
+    }
 
     /* KEYFRAMES */
     @keyframes star-drift  { 0%{background-position:0 0} 100%{background-position:-1000px 0} }
     @keyframes cloud-drift { 0%{background-position:0 0} 100%{background-position:-800px 0} }
 
     /* RESPONSIVE */
-    @media (max-width: 900px) and (orientation: landscape) {
-      .panel-container {
-        bottom:1rem;
-        width:min(700px, calc(100% - 2rem));
-      }
-    }
-
     @media (max-width: 768px) {
       body {
         padding:1rem;
-        justify-content:flex-end;
       }
-      .panel-container {
-        flex-direction:column;
-        width:min(480px, calc(100% - 1.5rem));
-        max-width:none;
-        bottom:clamp(0.75rem, 4vh, 2rem);
-        border-radius:24px;
+      .clock-wrapper {
+        width:min(90vmin, 420px);
       }
-      .panel + .panel {
-        border-top:1px solid rgba(255,255,255,0.2);
+      .clock-labels {
+        font-size:clamp(0.85rem, 3.2vmin, 1.1rem);
       }
-      .panel {
-        padding:1.5rem;
-      }
-      .panel .time    { font-size:2.1rem; }
-      .panel .weekday { font-size:1.2rem; }
-      .panel .date,
-      .panel .gdate   { font-size:1rem; }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding:1rem 0.75rem;
-        align-items:flex-end;
-        min-height:100vh;
-      }
-      .panel-container {
-        border-radius:26px;
-        width:calc(100% - 1rem);
-        left:50%;
-        transform:translateX(-50%);
-        bottom:calc(env(safe-area-inset-bottom, 0) + 0.5rem);
-      }
-      .panel {
-        padding:1.25rem 1rem;
-      }
-      .panel h2    { font-size:1.2rem; }
-      .panel .time { font-size:1.8rem; }
-    }
-
-    @media (max-width: 420px) {
-      body {
-        padding:0.75rem 0.5rem;
-      }
-      .panel-container {
-        width:calc(100% - 0.5rem);
-      }
-      .panel {
-        padding:1rem 0.75rem;
-      }
-      .panel .time { font-size:1.6rem; }
-      .panel .weekday { font-size:1.1rem; }
-      .panel .date,
-      .panel .gdate { font-size:0.95rem; }
     }
   </style>
 </head>
@@ -177,23 +202,20 @@
   <div id="sun"   class="celestial"></div>
   <div id="moon"  class="celestial"></div>
 
-  <!-- PANELS -->
-  <div class="panel-container">
-    <!-- Jakarta -->
-    <div id="Jakarta" class="panel">
-      <h2></h2>
-      <div class="time"    id="Jakarta-time">--:--:--</div>
-      <div class="weekday" id="Jakarta-weekday">-------</div>
-      <div class="date"    id="Jakarta-date">----/--/--</div>
+  <!-- CLOCK -->
+  <div class="clock-wrapper">
+    <div class="clock-face">
+      <div class="clock-ring"></div>
+      <div class="clock-center"></div>
+      <div id="clock-ticks" class="clock-ticks"></div>
+      <div id="hour-hand" class="hand hour"></div>
+      <div id="minute-hand" class="hand minute"></div>
+      <div id="second-hand" class="hand second"></div>
+      <div class="center-cap"></div>
     </div>
-
-    <!-- Hijri -->
-    <div id="Hijri" class="panel">
-      <h2></h2>
-      <div class="time"    id="Hijri-time">--:--:--</div>
-      <div class="weekday" id="Hijri-weekday">-------</div>
-      <div class="gdate"   id="Hijri-gregorian">--/--/----</div>
-      <div class="date"    id="Hijri-date">-------</div>
+    <div class="clock-labels">
+      <div id="hijri-date">*Hijr date</div>
+      <div id="gregorian-date">*Gregorian date</div>
     </div>
   </div>
 
@@ -210,44 +232,47 @@
     // Hijri always in English + Umm al-Qura
     const hijriLocale = 'en-GB-u-ca-islamic-umalqura';
 
-    function updatePanels(now) {
-      // Jakarta
+    function buildTicks() {
+      const ticks = document.getElementById('clock-ticks');
+      for (let i = 0; i < 12; i += 1) {
+        const tick = document.createElement('div');
+        tick.className = 'tick';
+        tick.style.setProperty('--tick-rotate', `${i * 30}deg`);
+        ticks.appendChild(tick);
+      }
+    }
+
+    function updateClock(now) {
       const dateOpts = { year:'numeric', month:'2-digit', day:'2-digit', timeZone:ZONE };
       const timeOpts = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:ZONE };
-      const wkOpts   = { weekday:'long', timeZone:ZONE };
-      document.getElementById('Jakarta-date').textContent    = new Intl.DateTimeFormat('en-GB', dateOpts).format(now);
-      document.getElementById('Jakarta-time').textContent    = new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
-      document.getElementById('Jakarta-weekday').textContent = new Intl.DateTimeFormat('en-GB', wkOpts).format(now);
+      const parts = new Intl.DateTimeFormat('en-GB', timeOpts).formatToParts(now);
+      const hour = +parts.find(p=>p.type==='hour').value;
+      const minute = +parts.find(p=>p.type==='minute').value;
+      const second = +parts.find(p=>p.type==='second').value;
 
-      // Hijri time parts
-      const parts = new Intl.DateTimeFormat('en-GB',{
-        hour:'2-digit', minute:'2-digit', second:'2-digit',
-        hour12:false, timeZone:ZONE
-      }).formatToParts(now);
-      const h = +parts.find(p=>p.type==='hour').value;
-      const m = +parts.find(p=>p.type==='minute').value;
-      const s = +parts.find(p=>p.type==='second').value;
+      const hourAngle = ((hour % 12) + minute / 60) * 30;
+      const minuteAngle = (minute + second / 60) * 6;
+      const secondAngle = second * 6;
 
-      // Hijri clock resets at 18:00
-      const hijriH = ((h - 18 + 24) % 24);
-      document.getElementById('Hijri-time').textContent =
-        `${String(hijriH).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      document.getElementById('hour-hand').style.transform =
+        `translate(-50%, -100%) rotate(${hourAngle}deg)`;
+      document.getElementById('minute-hand').style.transform =
+        `translate(-50%, -100%) rotate(${minuteAngle}deg)`;
+      document.getElementById('second-hand').style.transform =
+        `translate(-50%, -100%) rotate(${secondAngle}deg)`;
 
-      // Hijri date rollover & subtract one day
-      let base = now;
-      if (h >= 18) base = new Date(now.getTime() + 86400e3);
-      const hijriBase = new Date(base.getTime() - 86400e3);
-      document.getElementById('Hijri-weekday').textContent =
-        new Intl.DateTimeFormat(hijriLocale,{ weekday:'long', timeZone:ZONE }).format(hijriBase);
-      document.getElementById('Hijri-date').textContent =
-        new Intl.DateTimeFormat(hijriLocale,{
+      const hijriOffsetMinutes = 17 * 60 + 59;
+      const totalMinutes = hour * 60 + minute;
+      const hijriBase = totalMinutes >= hijriOffsetMinutes
+        ? now
+        : new Date(now.getTime() - 86400e3);
+
+      document.getElementById('gregorian-date').textContent =
+        `*${new Intl.DateTimeFormat('en-GB', dateOpts).format(now)}`;
+      document.getElementById('hijri-date').textContent =
+        `*${new Intl.DateTimeFormat(hijriLocale,{
           year:'numeric', month:'long', day:'numeric', timeZone:ZONE
-        }).format(hijriBase);
-
-      // Gregorian short date, shifted back 1 day
-      const yesterday = new Date(now.getTime() - 86400e3);
-      document.getElementById('Hijri-gregorian').textContent =
-        new Intl.DateTimeFormat('en-GB', dateOpts).format(yesterday);
+        }).format(hijriBase)}`;
     }
 
     function updateSky(now) {
@@ -306,9 +331,10 @@
 
     function tick() {
       const now = new Date();
-      updatePanels(now);
+      updateClock(now);
       updateSky(now);
     }
+    buildTicks();
     tick();
     setInterval(tick, 1000);
   </script>
